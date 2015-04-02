@@ -60,7 +60,7 @@ public class FriendsActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + MainActivity.DISPLAY_NAME;
+            String urlParameters = "display_name=" + MainActivity.DISPLAY_NAME; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);

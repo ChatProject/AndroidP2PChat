@@ -80,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + DISPLAY_NAME + "&listening_port=" + SERVER_PORT;
+            String urlParameters = "display_name=" + DISPLAY_NAME + "&listening_port=" + SERVER_PORT; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);
