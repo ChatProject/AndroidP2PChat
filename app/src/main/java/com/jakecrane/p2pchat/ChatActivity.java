@@ -33,7 +33,8 @@ public class ChatActivity extends ActionBarActivity {
         setContentView(R.layout.activity_chat);
 
         TextView displayNameTextView = (TextView)findViewById(R.id.displayNameTextView);
-        displayNameTextView.setText(displayName);
+        displayNameTextView.setText(displayName + "@" + ChatActivity.peerIpAddress + ":"
+                + ChatActivity.peerOpenPort);
 
         final Intent intent = new Intent(this, FriendsActivity.class);
 
@@ -53,7 +54,6 @@ public class ChatActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 ChatActivity.this.startActivity(intent);
-
             }
         });
 

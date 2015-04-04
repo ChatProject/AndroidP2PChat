@@ -1,11 +1,16 @@
 package com.jakecrane.p2pchat;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
-
 
 public class FriendsActivity extends ActionBarActivity {
 
@@ -43,6 +47,24 @@ public class FriendsActivity extends ActionBarActivity {
                             }
                         });
                     }
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                            Friend f = (Friend)parent.getItemAtPosition(position);
+
+                            ChatActivity.peerIpAddress = f.getIpv4_address();
+                            ChatActivity.peerOpenPort = f.getListeningPort();
+
+                            Toast.makeText(getBaseContext(), f.getDisplayName() + "@"
+                                    + f.getIpv4_address() + ":" + f.getListeningPort(),
+                                    Toast.LENGTH_LONG).show();
+                            final Intent intent1 = new Intent(FriendsActivity.this, ChatActivity.class);
+                            startActivity(intent1);
+                            finish();
+
+                        }
+                    });
                 }
             }.start();
 
@@ -73,7 +95,6 @@ public class FriendsActivity extends ActionBarActivity {
                 String inputLine;
 
                 while ((inputLine = in.readLine()) != null) {
-                    System.out.println(inputLine);
                     Friend f = new ObjectMapper().readValue(inputLine, Friend.class);
                     friends.add(f);
                 }

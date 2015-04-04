@@ -8,3 +8,6 @@ ObjectInputStream and ObjectOutputStream classes.
 The friends list is received from the webserver in the form on JSON.
 
 There is currently no user authentication.
+
+All users that wish to chat must sign in and wait for their peers to sign in before starting a chat
+so the database will have up to date information about user ip addresses.

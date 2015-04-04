@@ -29,10 +29,8 @@ public class SignInActivity extends ActionBarActivity {
                 ChatActivity.serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
                 ChatActivity.displayName = ((EditText)findViewById(R.id.displayNameEditText)).getText().toString();
                 ChatActivity.myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
-                ChatActivity.peerIpAddress = ((EditText)findViewById(R.id.peerIpAddressEditText)).getText().toString();
-                ChatActivity.peerOpenPort = Integer.parseInt(((EditText)findViewById(R.id.peerPortEditText)).getText().toString());
                 //finish();
-                final Intent intent1 = new Intent(SignInActivity.this, ChatActivity.class);
+                final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
                 startActivity(intent1);
             }
         });
