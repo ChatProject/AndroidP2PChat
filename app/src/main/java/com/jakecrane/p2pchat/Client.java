@@ -19,14 +19,14 @@ public class Client {
 
     public static final SimpleDateFormat MY_FORMAT = new SimpleDateFormat("[h:mm:ss] ");
 
-	public Client(final String ipAddress, final int port, final MainActivity mainActivity, final EditText textField, final TextView chatTextView, Button button) throws UnknownHostException, IOException {
+	public Client(final MainActivity mainActivity, final EditText textField, final TextView chatTextView, Button button) throws UnknownHostException, IOException {
 
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                 new Thread() {
                     @Override
                     public void run() {
-                        try (Socket socket = new Socket(ipAddress, port)) {
+                        try (Socket socket = new Socket(MainActivity.peerIpAddress, MainActivity.peerOpenPort)) {
                             try (ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream())) {
                                 final Data d = new Data(textField.getText().toString());
                                 mainActivity.runOnUiThread(new Runnable() {

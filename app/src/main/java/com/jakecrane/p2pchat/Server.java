@@ -7,17 +7,16 @@ import java.net.Socket;
 import java.util.Date;
 
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class Server {
 
-	public Server(final int port, final MainActivity mainActivity, final TextView chatTextView) {
+	public Server(final MainActivity mainActivity, final TextView chatTextView) {
         new Thread() {
             @Override
             public void run() {
-                try (ServerSocket serverSocket = new ServerSocket(port)) {
-                    Log.d("Server started on " + port, "");
+                try (ServerSocket serverSocket = new ServerSocket(MainActivity.myOpenPort)) {
+                    Log.d("Server started on " + MainActivity.myOpenPort, "");
                     while (true) {
                         try {
                             Socket socket = serverSocket.accept();

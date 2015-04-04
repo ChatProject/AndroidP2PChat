@@ -1,0 +1,105 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.jakecrane.p2pchat.SignIn">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/displayNameEditText"
+        android:text="jake"
+        android:layout_below="@+id/serverEditText"
+        android:layout_toEndOf="@+id/textView2"
+        android:layout_marginStart="16dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/serverEditText"
+        android:text="10.0.0.100"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/textView"
+        android:layout_marginStart="19dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="server"
+        android:id="@+id/textView"
+        android:layout_alignBaseline="@+id/serverEditText"
+        android:layout_alignBottom="@+id/serverEditText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Display Name"
+        android:id="@+id/textView2"
+        android:layout_alignBaseline="@+id/displayNameEditText"
+        android:layout_alignBottom="@+id/displayNameEditText"
+        android:layout_alignStart="@+id/textView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Open Port"
+        android:id="@+id/myOpenPortTextView"
+        android:layout_alignBaseline="@+id/myOpenPortEditText"
+        android:layout_alignBottom="@+id/myOpenPortEditText"
+        android:layout_toStartOf="@+id/displayNameEditText" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/myOpenPortEditText"
+        android:text="8000"
+        android:layout_below="@+id/displayNameEditText"
+        android:layout_alignStart="@+id/displayNameEditText" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:id="@+id/signInButton"
+        android:layout_marginTop="83dp"
+        android:layout_below="@+id/textView3"
+        android:layout_alignStart="@+id/myOpenPortTextView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Peer Port"
+        android:id="@+id/textView3"
+        android:layout_alignBaseline="@+id/peerPortEditText"
+        android:layout_alignBottom="@+id/peerPortEditText"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/peerPortEditText"
+        android:text="8000"
+        android:layout_below="@+id/myOpenPortEditText"
+        android:layout_alignStart="@+id/myOpenPortEditText"
+        android:layout_marginTop="65dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/peerIpAddressEditText"
+        android:layout_below="@+id/myOpenPortEditText"
+        android:layout_alignStart="@+id/peerPortEditText"
+        android:layout_marginTop="23dp"
+        android:text="10.0.0.15" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Peer ip Address"
+        android:id="@+id/textView4"
+        android:layout_alignTop="@+id/peerIpAddressEditText"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
