@@ -26,13 +26,13 @@ public class SignInActivity extends ActionBarActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
-                MainActivity.displayName = ((EditText)findViewById(R.id.displayNameEditText)).getText().toString();
-                MainActivity.myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
-                MainActivity.peerIpAddress = ((EditText)findViewById(R.id.peerIpAddressEditText)).getText().toString();
-                MainActivity.peerOpenPort = Integer.parseInt(((EditText)findViewById(R.id.peerPortEditText)).getText().toString());
+                ChatActivity.serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
+                ChatActivity.displayName = ((EditText)findViewById(R.id.displayNameEditText)).getText().toString();
+                ChatActivity.myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
+                ChatActivity.peerIpAddress = ((EditText)findViewById(R.id.peerIpAddressEditText)).getText().toString();
+                ChatActivity.peerOpenPort = Integer.parseInt(((EditText)findViewById(R.id.peerPortEditText)).getText().toString());
                 //finish();
-                final Intent intent1 = new Intent(SignInActivity.this, MainActivity.class);
+                final Intent intent1 = new Intent(SignInActivity.this, ChatActivity.class);
                 startActivity(intent1);
             }
         });
@@ -46,7 +46,7 @@ public class SignInActivity extends ActionBarActivity {
     public void updateStatus() {
 
         try {
-            URL obj = new URL("http://" + MainActivity.serverAddress + "/P2PChat/UpdateUser");
+            URL obj = new URL("http://" + ChatActivity.serverAddress + "/P2PChat/UpdateUser");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             //add reuqest header
@@ -56,7 +56,7 @@ public class SignInActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + MainActivity.displayName + "&listening_port=" + MainActivity.myOpenPort; //FIXME not secure
+            String urlParameters = "display_name=" + ChatActivity.displayName + "&listening_port=" + ChatActivity.myOpenPort; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);

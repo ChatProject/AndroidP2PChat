@@ -23,7 +23,7 @@
             android:label="@string/title_activity_freinds" >
         </activity>
         <activity
-            android:name=".MainActivity">
+            android:name=".ChatActivity">
         </activity>
     </application>
 

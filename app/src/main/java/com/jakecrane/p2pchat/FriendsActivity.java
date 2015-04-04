@@ -51,14 +51,14 @@ public class FriendsActivity extends ActionBarActivity {
     public static ArrayList<Friend> getFriends() {
 
         try {
-            URL obj = new URL("http://" + MainActivity.serverAddress + "/P2PChat/GetFriends");
+            URL obj = new URL("http://" + ChatActivity.serverAddress + "/P2PChat/GetFriends");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             con.setRequestMethod("POST");
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + MainActivity.displayName; //FIXME not secure
+            String urlParameters = "display_name=" + ChatActivity.displayName; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);

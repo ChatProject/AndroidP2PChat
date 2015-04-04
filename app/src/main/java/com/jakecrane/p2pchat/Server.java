@@ -11,16 +11,16 @@ import android.widget.TextView;
 
 public class Server {
 
-	public Server(final MainActivity mainActivity, final TextView chatTextView) {
+	public Server(final ChatActivity chatActivity, final TextView chatTextView) {
         new Thread() {
             @Override
             public void run() {
-                try (ServerSocket serverSocket = new ServerSocket(MainActivity.myOpenPort)) {
-                    Log.d("Server started on " + MainActivity.myOpenPort, "");
+                try (ServerSocket serverSocket = new ServerSocket(ChatActivity.myOpenPort)) {
+                    Log.d("Server started on " + ChatActivity.myOpenPort, "");
                     while (true) {
                         try {
                             Socket socket = serverSocket.accept();
-                            new ServerThread(socket, mainActivity, chatTextView).start();
+                            new ServerThread(socket, chatActivity, chatTextView).start();
                         } catch (IOException e) {
                             e.printStackTrace();
                             Log.e("", "", e);
@@ -40,12 +40,12 @@ class ServerThread extends Thread {
 	private Socket socket;
 	//private ObjectInputStream inputFromClient;
 	private TextView chatTextView;
-    private MainActivity mainActivity;
+    private ChatActivity chatActivity;
 
-	public ServerThread(Socket socket, final MainActivity mainActivity, TextView chatTextView) {
+	public ServerThread(Socket socket, final ChatActivity chatActivity, TextView chatTextView) {
 		this.socket = socket;
 		this.chatTextView = chatTextView;
-        this.mainActivity= mainActivity;
+        this.chatActivity = chatActivity;
 	}
 
 	@Override
@@ -56,7 +56,7 @@ class ServerThread extends Thread {
 			d.setReceivedTime(System.currentTimeMillis());
 
 			//System.out.println("server received " + s.getMessage());
-            mainActivity.runOnUiThread(new Runnable() {
+            chatActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     chatTextView.append(Client.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");

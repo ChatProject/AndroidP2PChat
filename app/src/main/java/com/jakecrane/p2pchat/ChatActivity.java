@@ -19,7 +19,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
-public class MainActivity extends ActionBarActivity {
+public class ChatActivity extends ActionBarActivity {
 
     public static String serverAddress = null;
     public static String displayName = null;
@@ -30,7 +30,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
 
         TextView displayNameTextView = (TextView)findViewById(R.id.displayNameTextView);
         displayNameTextView.setText(displayName);
@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
         friendsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.this.startActivity(intent);
+                ChatActivity.this.startActivity(intent);
 
             }
         });
@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity {
             }
 
             final int responseCode = con.getResponseCode();
-            MainActivity.this.runOnUiThread(new Runnable() {
+            ChatActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (responseCode == HttpURLConnection.HTTP_OK) {

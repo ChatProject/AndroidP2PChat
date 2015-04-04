@@ -19,17 +19,17 @@ public class Client {
 
     public static final SimpleDateFormat MY_FORMAT = new SimpleDateFormat("[h:mm:ss] ");
 
-	public Client(final MainActivity mainActivity, final EditText textField, final TextView chatTextView, Button button) throws UnknownHostException, IOException {
+	public Client(final ChatActivity chatActivity, final EditText textField, final TextView chatTextView, Button button) throws UnknownHostException, IOException {
 
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                 new Thread() {
                     @Override
                     public void run() {
-                        try (Socket socket = new Socket(MainActivity.peerIpAddress, MainActivity.peerOpenPort)) {
+                        try (Socket socket = new Socket(ChatActivity.peerIpAddress, ChatActivity.peerOpenPort)) {
                             try (ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream())) {
                                 final Data d = new Data(textField.getText().toString());
-                                mainActivity.runOnUiThread(new Runnable() {
+                                chatActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         chatTextView.append(MY_FORMAT.format(new Date(d.getCreatedTime())) + "sent " + textField.getText() + "\n");
@@ -53,7 +53,7 @@ public class Client {
                             e3.printStackTrace();
                             Log.d("", "", e3);
                         } catch (IOException e3) {
-                            mainActivity.runOnUiThread(new Runnable() {
+                            chatActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     chatTextView.append(MY_FORMAT.format(new Date()) + "unable to send message" + "\n");
