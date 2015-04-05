@@ -53,6 +53,7 @@ public class FriendsActivity extends ActionBarActivity {
 
                             Friend f = (Friend)parent.getItemAtPosition(position);
 
+                            ChatActivity.peerDisplayName = f.getDisplayName();
                             ChatActivity.peerIpAddress = f.getIpv4_address();
                             ChatActivity.peerOpenPort = f.getListeningPort();
 

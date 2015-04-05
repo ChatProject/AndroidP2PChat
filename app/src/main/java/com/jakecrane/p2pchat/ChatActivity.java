@@ -24,6 +24,7 @@ public class ChatActivity extends ActionBarActivity {
     public static String serverAddress = null;
     public static String displayName = null;
     public static int myOpenPort = -1;
+    public static String peerDisplayName = null;
     public static String peerIpAddress = null;
     public static int peerOpenPort = -1;
 
@@ -33,7 +34,8 @@ public class ChatActivity extends ActionBarActivity {
         setContentView(R.layout.activity_chat);
 
         TextView displayNameTextView = (TextView)findViewById(R.id.displayNameTextView);
-        displayNameTextView.setText(displayName + "@" + ChatActivity.peerIpAddress + ":"
+        displayNameTextView.setText("Chatting with " + peerDisplayName + "@"
+                + ChatActivity.peerIpAddress + ":"
                 + ChatActivity.peerOpenPort);
 
         final Intent intent = new Intent(this, FriendsActivity.class);
