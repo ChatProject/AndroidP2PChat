@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,27 +27,20 @@ import java.util.ArrayList;
 
 public class FriendsActivity extends ActionBarActivity {
 
+    private ListView listView = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
-        final ListView listView = (ListView)findViewById(R.id.listView);
             new Thread() {
                 @Override
                 public void run() {
-                    final ArrayList<Friend> friends = getFriends();
-                    if (friends != null) {
-                        final ArrayAdapter<Friend> arrayAdapter = new ArrayAdapter<Friend>(
-                                FriendsActivity.this,
-                                android.R.layout.simple_list_item_1,
-                                friends);
-                        FriendsActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                listView.setAdapter(arrayAdapter);
-                            }
-                        });
-                    }
+
+                    listView = (ListView)findViewById(R.id.listView);
+
+                    updateFriends();
+
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -69,6 +63,34 @@ public class FriendsActivity extends ActionBarActivity {
                 }
             }.start();
 
+        Button refreshButton = (Button)findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        updateFriends();
+                    }
+                }.start();
+            }
+        });
+    }
+
+    public void updateFriends() {
+        final ArrayList<Friend> friends = getFriends();
+        if (friends != null) {
+            final ArrayAdapter<Friend> arrayAdapter = new ArrayAdapter<Friend>(
+                    FriendsActivity.this,
+                    android.R.layout.simple_list_item_1,
+                    friends);
+            FriendsActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    listView.setAdapter(arrayAdapter);
+                }
+            });
+        }
     }
 
     public static ArrayList<Friend> getFriends() {
