@@ -1,6 +1,11 @@
 package com.jakecrane.p2pchat;
 
-public class Friend {
+import java.io.Serializable;
+
+public class Friend implements Serializable {
+
+    private static final long serialVersionUID = -9095423069662282316L;
+
     private String displayName;
     private String ipv4_address;
     private int listeningPort;

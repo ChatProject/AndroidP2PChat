@@ -3,6 +3,7 @@ package com.jakecrane.p2pchat;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,44 +14,75 @@ import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Logger;
 
 public class ChatActivity extends ActionBarActivity {
 
-    public static String serverAddress = null;
-    public static String displayName = null;
-    public static int myOpenPort = -1;
-    public static String peerDisplayName = null;
-    public static String peerIpAddress = null;
-    public static int peerOpenPort = -1;
+    public static final SimpleDateFormat MY_FORMAT = new SimpleDateFormat("[h:mm:ss] ");
+
+    private static String myDisplayName;
+    private Friend friend;
+    private TextView chatTextView;
+
+    public TextView getChatTextView() {
+        return chatTextView;
+    }
+
+    public String getMyDisplayName() {
+        return myDisplayName;
+    }
+
+    public Friend getFriend() {
+        return friend;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        myDisplayName = getIntent().getStringExtra("myDisplayName");
+        friend = (Friend)getIntent().getSerializableExtra("friend");
+        Log.d("", "chatting with " + friend.getDisplayName());
+
         TextView displayNameTextView = (TextView)findViewById(R.id.displayNameTextView);
-        displayNameTextView.setText("Chatting with " + peerDisplayName + "@"
-                + ChatActivity.peerIpAddress + ":"
-                + ChatActivity.peerOpenPort);
+        displayNameTextView.setText("Chatting with " + friend.getDisplayName() + "@"
+                + friend.getIpv4_address() + ":"
+                + friend.getListeningPort());
 
         final Intent intent = new Intent(this, FriendsActivity.class);
 
-        new Thread() {
-            @Override
-            public void run() {
-                updateStatus();
-            }
-        }.start();
-
-        final TextView chatTextView = (TextView)findViewById(R.id.chatTextView);
+        chatTextView = (TextView)findViewById(R.id.chatTextView);
         final EditText inputEditText = (EditText)findViewById(R.id.editText2);
         final Button button = (Button)findViewById(R.id.button);
         final Button friendsButton = (Button)findViewById(R.id.button2);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            ChatActivity.sendMessage(myDisplayName, inputEditText.getText().toString(), friend);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+                chatTextView.append(MY_FORMAT.format(new Date()) + "sent " + inputEditText.getText() + "\n");
+                inputEditText.setText("");
+            }
+        });
 
         friendsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,58 +90,7 @@ public class ChatActivity extends ActionBarActivity {
                 ChatActivity.this.startActivity(intent);
             }
         });
-
-        try {
-            new Client(this, inputEditText, chatTextView, button);
-            new Server(this, chatTextView);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void updateStatus() {
-
-        try {
-            URL obj = new URL("http://" + serverAddress + "/P2PChat/UpdateUser");
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-            //add reuqest header
-
-            con.setRequestMethod("POST");
-
-            con.setRequestProperty("User-Agent", "AndroidApp");
-            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-            String urlParameters = "display_name=" + displayName + "&listening_port=" + myOpenPort; //FIXME not secure
-
-            // Send post request
-            con.setDoOutput(true);
-            try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-                wr.writeBytes(urlParameters);
-                wr.flush();
-            }
-
-            final int responseCode = con.getResponseCode();
-            ChatActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        Toast.makeText(getApplicationContext(), "Status Updated", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Unable to update your status", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Server.chatActivities.add(this);
     }
 
     @Override
@@ -117,6 +98,12 @@ public class ChatActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Server.chatActivities.remove(this);
     }
 
     @Override
@@ -141,6 +128,32 @@ public class ChatActivity extends ActionBarActivity {
                 text.setText(value);
             }
         });
+    }
+
+    public static void sendMessage(String myDisplayName, String message, Friend recipient) throws UnknownHostException, IOException {
+        try (Socket socket = new Socket(recipient.getIpv4_address(), recipient.getListeningPort())) {
+            try (ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream())) {
+                final Data d = new Data(message, myDisplayName);
+
+                toServer.writeObject(d);
+
+						/*try (ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream())) {
+
+							Data reply = (Data)fromServer.readObject();
+							textArea.append(reply.getMessage() + "\n");
+						} catch (ClassNotFoundException e1) {
+							e1.printStackTrace();
+						}*/
+            } catch (IOException e2) {
+                e2.printStackTrace();
+                Log.d("", "", e2);
+            }
+        } catch (UnknownHostException e3) {
+            e3.printStackTrace();
+            Log.d("", "", e3);
+        } catch (IOException e3) {
+            Log.d("", "", e3);
+        }
     }
 
 }

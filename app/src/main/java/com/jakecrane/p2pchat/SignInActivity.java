@@ -15,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 public class SignInActivity extends ActionBarActivity {
 
@@ -26,11 +27,21 @@ public class SignInActivity extends ActionBarActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ChatActivity.serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
-                ChatActivity.displayName = ((EditText)findViewById(R.id.displayNameEditText)).getText().toString();
-                ChatActivity.myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
+                final String serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
+                final String myDisplayName = ((EditText)findViewById(R.id.displayNameEditText)).getText().toString();
+                final int myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
+                new Server(myOpenPort);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        updateStatus(serverAddress, myDisplayName, myOpenPort);
+                    }
+                }.start();
+
                 //finish();
                 final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
+                intent1.putExtra("serverAddress", serverAddress );
+                intent1.putExtra("myDisplayName", myDisplayName );
                 startActivity(intent1);
             }
         });
@@ -41,10 +52,10 @@ public class SignInActivity extends ActionBarActivity {
         super.onDestroy();
     }
 
-    public void updateStatus() {
+    public static boolean updateStatus(String serverAddress, String displayName, int myOpenPort) {
 
         try {
-            URL obj = new URL("http://" + ChatActivity.serverAddress + "/P2PChat/UpdateUser");
+            URL obj = new URL("http://" + serverAddress + "/P2PChat/UpdateUser");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             //add reuqest header
@@ -54,7 +65,7 @@ public class SignInActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + ChatActivity.displayName + "&listening_port=" + ChatActivity.myOpenPort; //FIXME not secure
+            String urlParameters = "display_name=" + displayName + "&listening_port=" + myOpenPort; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);
@@ -64,16 +75,11 @@ public class SignInActivity extends ActionBarActivity {
             }
 
             final int responseCode = con.getResponseCode();
-            SignInActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        Toast.makeText(getApplicationContext(), "Status Updated", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Unable to update your status", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return true;
+            }
+
         } catch (ProtocolException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {
@@ -81,6 +87,8 @@ public class SignInActivity extends ActionBarActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     @Override

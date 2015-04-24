@@ -3,6 +3,7 @@ package com.jakecrane.p2pchat;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,35 +34,36 @@ public class FriendsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
-            new Thread() {
-                @Override
-                public void run() {
 
-                    listView = (ListView)findViewById(R.id.listView);
+        final String serverAddress = getIntent().getStringExtra("serverAddress");
+        final String myDisplayName = getIntent().getStringExtra("myDisplayName");
 
-                    updateFriends();
+        new Thread() {
+            @Override
+            public void run() {
+                listView = (ListView)findViewById(R.id.listView);
 
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                updateFriends(serverAddress, myDisplayName);
 
-                            Friend f = (Friend)parent.getItemAtPosition(position);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                            ChatActivity.peerDisplayName = f.getDisplayName();
-                            ChatActivity.peerIpAddress = f.getIpv4_address();
-                            ChatActivity.peerOpenPort = f.getListeningPort();
+                        Friend friend = (Friend)parent.getItemAtPosition(position);
 
-                            Toast.makeText(getBaseContext(), f.getDisplayName() + "@"
-                                    + f.getIpv4_address() + ":" + f.getListeningPort(),
-                                    Toast.LENGTH_LONG).show();
-                            final Intent intent1 = new Intent(FriendsActivity.this, ChatActivity.class);
-                            startActivity(intent1);
-                            finish();
+                        Toast.makeText(getBaseContext(), friend.getDisplayName() + "@"
+                                        + friend.getIpv4_address() + ":" + friend.getListeningPort(),
+                                Toast.LENGTH_LONG).show();
+                        final Intent intent1 = new Intent(FriendsActivity.this, ChatActivity.class);
+                        intent1.putExtra("myDisplayName", myDisplayName);
+                        intent1.putExtra("friend", friend);
+                        startActivity(intent1);
+                        finish();
 
-                        }
-                    });
-                }
-            }.start();
+                    }
+                });
+            }
+        }.start();
 
         Button refreshButton = (Button)findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(new View.OnClickListener() {
@@ -70,15 +72,15 @@ public class FriendsActivity extends ActionBarActivity {
                 new Thread() {
                     @Override
                     public void run() {
-                        updateFriends();
+                        updateFriends(serverAddress, myDisplayName);
                     }
                 }.start();
             }
         });
     }
 
-    public void updateFriends() {
-        final ArrayList<Friend> friends = getFriends();
+    public void updateFriends(String serverAddress, String myDisplayName) {
+        final ArrayList<Friend> friends = getFriends(serverAddress, myDisplayName);
         if (friends != null) {
             final ArrayAdapter<Friend> arrayAdapter = new ArrayAdapter<Friend>(
                     FriendsActivity.this,
@@ -93,17 +95,17 @@ public class FriendsActivity extends ActionBarActivity {
         }
     }
 
-    public static ArrayList<Friend> getFriends() {
+    public static ArrayList<Friend> getFriends(String serverAddress, String myDisplayName) {
 
         try {
-            URL obj = new URL("http://" + ChatActivity.serverAddress + "/P2PChat/GetFriends");
+            URL obj = new URL("http://" + serverAddress + "/P2PChat/GetFriends");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             con.setRequestMethod("POST");
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + ChatActivity.displayName; //FIXME not secure
+            String urlParameters = "display_name=" + myDisplayName; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);
@@ -126,9 +128,9 @@ public class FriendsActivity extends ActionBarActivity {
             final int responseCode = con.getResponseCode();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Friends Retrieved");
+                Log.d("", "Friends Retrieved");
             } else {
-                System.out.println("Unable to retrieve friends");
+                Log.d("", "Unable to retrieve friends");
             }
 
             return friends;

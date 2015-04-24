@@ -9,9 +9,11 @@ public class Data implements Serializable {
 	private long createdTime;
 	private long receivedTime;
 	private String message;
+    private String senderDisplayName;
 	
-	public Data(String message) {
+	public Data(String message, String senderDisplayName) {
 		this.message = message;
+        this.senderDisplayName = senderDisplayName;
 		createdTime = System.currentTimeMillis();
 	}
 	
@@ -30,5 +32,6 @@ public class Data implements Serializable {
 	public String getMessage() {
 		return message;
 	}
-	
+
+    public String getSenderDisplayName() { return senderDisplayName; }
 }
