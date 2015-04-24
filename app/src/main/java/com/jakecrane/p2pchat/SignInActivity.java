@@ -37,12 +37,12 @@ public class SignInActivity extends ActionBarActivity {
                     }
                 }.start();
 
-                //finish();
                 final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
                 intent1.putExtra("serverAddress", serverAddress );
                 intent1.putExtra("username", username );
                 intent1.putExtra("password", password );
                 startActivity(intent1);
+                finish();
             }
         });
     }

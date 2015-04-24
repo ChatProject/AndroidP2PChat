@@ -1,9 +1,11 @@
 package com.jakecrane.p2pchat;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +14,11 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
@@ -68,7 +74,6 @@ public class ChatActivity extends ActionBarActivity {
         }
         final EditText inputEditText = (EditText)findViewById(R.id.editText2);
         final Button button = (Button)findViewById(R.id.button);
-        final Button friendsButton = (Button)findViewById(R.id.button2);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,12 +93,17 @@ public class ChatActivity extends ActionBarActivity {
             }
         });
 
-        friendsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ChatActivity.this.startActivity(intent);
+        File file = new File(getFilesDir(), friend.getUsername());
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    chatTextView.append(line + "\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+        }
         Server.chatActivities.add(this);
     }
 
@@ -108,6 +118,12 @@ public class ChatActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
         Server.chatActivities.remove(this);
+        File file = new File(getFilesDir(), friend.getUsername());
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(chatTextView.getText().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

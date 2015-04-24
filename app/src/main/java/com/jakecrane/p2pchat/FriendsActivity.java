@@ -59,7 +59,6 @@ public class FriendsActivity extends ActionBarActivity {
                         intent1.putExtra("username", username);
                         intent1.putExtra("friend", friend);
                         startActivity(intent1);
-                        finish();
 
                     }
                 });
@@ -167,4 +166,5 @@ public class FriendsActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
