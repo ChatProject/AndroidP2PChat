@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/displayNameTextView"
+        android:id="@+id/usernameTextView"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="141dp" />
 

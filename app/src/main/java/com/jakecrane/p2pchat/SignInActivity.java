@@ -7,7 +7,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.UnknownHostException;
 
 public class SignInActivity extends ActionBarActivity {
 
@@ -28,20 +26,22 @@ public class SignInActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 final String serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
-                final String myDisplayName = ((EditText)findViewById(R.id.displayNameEditText)).getText().toString();
+                final String username = ((EditText)findViewById(R.id.usernameEditText)).getText().toString();
+                final String password = ((EditText)findViewById(R.id.passwordEditText)).getText().toString();
                 final int myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
-                new Server(myOpenPort);
+                new Server(myOpenPort, serverAddress, username, password, SignInActivity.this);
                 new Thread() {
                     @Override
                     public void run() {
-                        updateStatus(serverAddress, myDisplayName, myOpenPort);
+                        updateStatus(serverAddress, username, password, myOpenPort);
                     }
                 }.start();
 
                 //finish();
                 final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
                 intent1.putExtra("serverAddress", serverAddress );
-                intent1.putExtra("myDisplayName", myDisplayName );
+                intent1.putExtra("username", username );
+                intent1.putExtra("password", password );
                 startActivity(intent1);
             }
         });
@@ -52,7 +52,7 @@ public class SignInActivity extends ActionBarActivity {
         super.onDestroy();
     }
 
-    public static boolean updateStatus(String serverAddress, String displayName, int myOpenPort) {
+    public static boolean updateStatus(String serverAddress, String username, String password, int myOpenPort) {
 
         try {
             URL obj = new URL("http://" + serverAddress + "/P2PChat/UpdateUser");
@@ -65,7 +65,7 @@ public class SignInActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + displayName + "&listening_port=" + myOpenPort; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password + "&listening_port=" + myOpenPort; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);

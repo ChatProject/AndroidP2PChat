@@ -36,14 +36,15 @@ public class FriendsActivity extends ActionBarActivity {
         setContentView(R.layout.activity_friends);
 
         final String serverAddress = getIntent().getStringExtra("serverAddress");
-        final String myDisplayName = getIntent().getStringExtra("myDisplayName");
+        final String username = getIntent().getStringExtra("username");
+        final String password = getIntent().getStringExtra("password");
 
         new Thread() {
             @Override
             public void run() {
                 listView = (ListView)findViewById(R.id.listView);
 
-                updateFriends(serverAddress, myDisplayName);
+                updateFriends(serverAddress, username, password);
 
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -51,11 +52,11 @@ public class FriendsActivity extends ActionBarActivity {
 
                         Friend friend = (Friend)parent.getItemAtPosition(position);
 
-                        Toast.makeText(getBaseContext(), friend.getDisplayName() + "@"
+                        Toast.makeText(getBaseContext(), friend.getUsername() + "@"
                                         + friend.getIpv4_address() + ":" + friend.getListeningPort(),
                                 Toast.LENGTH_LONG).show();
                         final Intent intent1 = new Intent(FriendsActivity.this, ChatActivity.class);
-                        intent1.putExtra("myDisplayName", myDisplayName);
+                        intent1.putExtra("username", username);
                         intent1.putExtra("friend", friend);
                         startActivity(intent1);
                         finish();
@@ -72,15 +73,15 @@ public class FriendsActivity extends ActionBarActivity {
                 new Thread() {
                     @Override
                     public void run() {
-                        updateFriends(serverAddress, myDisplayName);
+                        updateFriends(serverAddress, username, password);
                     }
                 }.start();
             }
         });
     }
 
-    public void updateFriends(String serverAddress, String myDisplayName) {
-        final ArrayList<Friend> friends = getFriends(serverAddress, myDisplayName);
+    public void updateFriends(String serverAddress, String username, String password) {
+        final ArrayList<Friend> friends = getFriends(serverAddress, username, password);
         if (friends != null) {
             final ArrayAdapter<Friend> arrayAdapter = new ArrayAdapter<Friend>(
                     FriendsActivity.this,
@@ -95,7 +96,7 @@ public class FriendsActivity extends ActionBarActivity {
         }
     }
 
-    public static ArrayList<Friend> getFriends(String serverAddress, String myDisplayName) {
+    public static ArrayList<Friend> getFriends(String serverAddress, String username, String password) {
 
         try {
             URL obj = new URL("http://" + serverAddress + "/P2PChat/GetFriends");
@@ -105,7 +106,7 @@ public class FriendsActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "display_name=" + myDisplayName; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password; //FIXME not secure
 
             // Send post request
             con.setDoOutput(true);

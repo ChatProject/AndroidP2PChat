@@ -6,7 +6,7 @@ public class Friend implements Serializable {
 
     private static final long serialVersionUID = -9095423069662282316L;
 
-    private String displayName;
+    private String username;
     private String ipv4_address;
     private int listeningPort;
     private long lastActive;
@@ -15,15 +15,15 @@ public class Friend implements Serializable {
 
     }
 
-    public Friend(String displayName, String ipv4_address, int listeningPort, long lastActive) {
-        this.displayName = displayName;
+    public Friend(String username, String ipv4_address, int listeningPort, long lastActive) {
+        this.username = username;
         this.ipv4_address = ipv4_address;
         this.listeningPort = listeningPort;
         this.lastActive = lastActive;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getUsername() {
+        return username;
     }
 
     public String getIpv4_address() {
@@ -40,6 +40,6 @@ public class Friend implements Serializable {
 
     @Override
     public String toString() {
-        return displayName;
+        return username;
     }
 }

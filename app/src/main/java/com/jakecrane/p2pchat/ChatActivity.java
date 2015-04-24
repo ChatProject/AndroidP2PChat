@@ -29,7 +29,7 @@ public class ChatActivity extends ActionBarActivity {
 
     public static final SimpleDateFormat MY_FORMAT = new SimpleDateFormat("[h:mm:ss] ");
 
-    private static String myDisplayName;
+    private static String username;
     private Friend friend;
     private TextView chatTextView;
 
@@ -37,8 +37,8 @@ public class ChatActivity extends ActionBarActivity {
         return chatTextView;
     }
 
-    public String getMyDisplayName() {
-        return myDisplayName;
+    public String getMyUsername() {
+        return username;
     }
 
     public Friend getFriend() {
@@ -50,18 +50,22 @@ public class ChatActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        myDisplayName = getIntent().getStringExtra("myDisplayName");
+        username = getIntent().getStringExtra("username");
         friend = (Friend)getIntent().getSerializableExtra("friend");
-        Log.d("", "chatting with " + friend.getDisplayName());
+        String message = getIntent().getStringExtra("message");
+        Log.d("", "chatting with " + friend.getUsername());
 
-        TextView displayNameTextView = (TextView)findViewById(R.id.displayNameTextView);
-        displayNameTextView.setText("Chatting with " + friend.getDisplayName() + "@"
+        TextView usernameTextView = (TextView)findViewById(R.id.usernameTextView);
+        usernameTextView.setText("Chatting with " + friend.getUsername() + "@"
                 + friend.getIpv4_address() + ":"
                 + friend.getListeningPort());
 
         final Intent intent = new Intent(this, FriendsActivity.class);
 
         chatTextView = (TextView)findViewById(R.id.chatTextView);
+        if (message != null) {
+            chatTextView.append(message);
+        }
         final EditText inputEditText = (EditText)findViewById(R.id.editText2);
         final Button button = (Button)findViewById(R.id.button);
         final Button friendsButton = (Button)findViewById(R.id.button2);
@@ -73,7 +77,7 @@ public class ChatActivity extends ActionBarActivity {
                     @Override
                     public void run() {
                         try {
-                            ChatActivity.sendMessage(myDisplayName, inputEditText.getText().toString(), friend);
+                            ChatActivity.sendMessage(username, inputEditText.getText().toString(), friend);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -130,10 +134,10 @@ public class ChatActivity extends ActionBarActivity {
         });
     }
 
-    public static void sendMessage(String myDisplayName, String message, Friend recipient) throws UnknownHostException, IOException {
+    public static void sendMessage(String username, String message, Friend recipient) throws UnknownHostException, IOException {
         try (Socket socket = new Socket(recipient.getIpv4_address(), recipient.getListeningPort())) {
             try (ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream())) {
-                final Data d = new Data(message, myDisplayName);
+                final Data d = new Data(message, username);
 
                 toServer.writeObject(d);
 

@@ -9,7 +9,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/displayNameEditText"
+        android:id="@+id/usernameEditText"
         android:text="jake"
         android:layout_below="@+id/serverEditText"
         android:layout_toEndOf="@+id/textView2"
@@ -37,33 +37,58 @@
         android:layout_height="wrap_content"
         android:text="Display Name"
         android:id="@+id/textView2"
-        android:layout_alignBaseline="@+id/displayNameEditText"
-        android:layout_alignBottom="@+id/displayNameEditText"
+        android:layout_alignBaseline="@+id/usernameEditText"
+        android:layout_alignBottom="@+id/usernameEditText"
         android:layout_alignStart="@+id/textView" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="My Open Port"
-        android:id="@+id/myOpenPortTextView"
-        android:layout_alignBaseline="@+id/myOpenPortEditText"
-        android:layout_alignBottom="@+id/myOpenPortEditText"
-        android:layout_toStartOf="@+id/displayNameEditText" />
+        android:text="Password"
+        android:id="@+id/textView3"
+        android:layout_alignBottom="@+id/passwordEditText"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/passwordEditText"
+        android:layout_below="@+id/textView2"
+        android:layout_toEndOf="@+id/textView2"
+        android:text="password" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/myOpenPortEditText"
         android:text="8000"
-        android:layout_below="@+id/displayNameEditText"
-        android:layout_alignStart="@+id/displayNameEditText" />
+        android:layout_below="@+id/textView3"
+        android:layout_alignStart="@+id/usernameEditText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Open Port"
+        android:id="@+id/textView4"
+        android:layout_alignBottom="@+id/myOpenPortEditText"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign In"
         android:id="@+id/signInButton"
-        android:layout_below="@+id/myOpenPortEditText"
-        android:layout_alignStart="@+id/myOpenPortTextView" />
+        android:layout_below="@+id/textView4"
+        android:layout_alignEnd="@+id/textView4" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create New Account"
+        android:id="@+id/button4"
+        android:layout_alignBottom="@+id/signInButton"
+        android:layout_alignStart="@+id/myOpenPortEditText" />
 
 </RelativeLayout>
