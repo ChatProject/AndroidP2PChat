@@ -48,12 +48,23 @@ public class FriendsActivity extends ActionBarActivity {
         final String username = getIntent().getStringExtra("username");
         final String password = getIntent().getStringExtra("password");
 
+        Toast.makeText(getBaseContext(), "Updating Friends", Toast.LENGTH_SHORT).show();
         new Thread() {
             @Override
             public void run() {
                 listView = (ListView)findViewById(R.id.listView);
 
-                updateFriends(serverAddress, username, password);
+                final boolean success = updateFriends(serverAddress, username, password);
+                FriendsActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (success) {
+                            Toast.makeText(getBaseContext(), "Friends Updated", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getBaseContext(), "Unable to update Friends", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
 
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -61,9 +72,6 @@ public class FriendsActivity extends ActionBarActivity {
                         listView.getChildAt(position).setBackgroundColor(0); //set transparent to remove possible notification
                         Friend friend = (Friend)parent.getItemAtPosition(position);
 
-                        Toast.makeText(getBaseContext(), friend.getUsername() + "@"
-                                        + friend.getIpv4_address() + ":" + friend.getListeningPort(),
-                                Toast.LENGTH_LONG).show();
                         final Intent intent1 = new Intent(FriendsActivity.this, ChatActivity.class);
                         intent1.putExtra("username", username);
                         intent1.putExtra("friend", friend);
@@ -80,7 +88,17 @@ public class FriendsActivity extends ActionBarActivity {
                 new Thread() {
                     @Override
                     public void run() {
-                        updateFriends(serverAddress, username, password);
+                        final boolean success = updateFriends(serverAddress, username, password);
+                        FriendsActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (success) {
+                                    Toast.makeText(getBaseContext(), "Friends Updated", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getBaseContext(), "Unable to Update Friends", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
                     }
                 }.start();
             }
@@ -88,7 +106,7 @@ public class FriendsActivity extends ActionBarActivity {
         friendsActivity = this;
     }
 
-    public void updateFriends(String serverAddress, String username, String password) {
+    public boolean updateFriends(String serverAddress, String username, String password) {
         final ArrayList<Friend> friends = getFriends(serverAddress, username, password);
         if (friends != null) {
             final ArrayAdapter<Friend> arrayAdapter = new ArrayAdapter<Friend>(
@@ -101,7 +119,9 @@ public class FriendsActivity extends ActionBarActivity {
                     listView.setAdapter(arrayAdapter);
                 }
             });
+            return true;
         }
+        return false;
     }
 
     public static ArrayList<Friend> getFriends(String serverAddress, String username, String password) {

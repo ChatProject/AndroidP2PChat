@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
@@ -63,6 +66,10 @@ class ServerThread extends Thread {
         try (ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream())) {
 
             final Data d = (Data)inputFromClient.readObject();
+            try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream())) {
+                writer.write(200);
+            }
+
             d.setReceivedTime(System.currentTimeMillis());
 
             Log.d("", d.getSenderUsername() + " is sending a message");
@@ -105,11 +112,6 @@ class ServerThread extends Thread {
                     }
                 }
             }
-
-			/*try (ObjectOutputStream outputToClient = new ObjectOutputStream(socket.getOutputStream())) {
-				Data d = new Data("server says " + s.getMessage() + " back");
-				outputToClient.writeObject(d);
-			}*/
 
         } catch(ClassNotFoundException ex) {
             ex.printStackTrace();

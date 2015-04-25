@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -49,14 +50,24 @@ public class SignInActivity extends ActionBarActivity {
         createAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
-                final String username = ((EditText)findViewById(R.id.usernameEditText)).getText().toString();
-                final String password = ((EditText)findViewById(R.id.passwordEditText)).getText().toString();
-                final int myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
+                final String serverAddress = ((EditText) findViewById(R.id.serverEditText)).getText().toString();
+                final String username = ((EditText) findViewById(R.id.usernameEditText)).getText().toString();
+                final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
+                final int myOpenPort = Integer.parseInt(((EditText) findViewById(R.id.myOpenPortEditText)).getText().toString());
                 new Thread() {
                     @Override
                     public void run() {
-                        createAccount(serverAddress, username, password, myOpenPort);
+                        final boolean success = createAccount(serverAddress, username, password, myOpenPort);
+                            SignInActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (success) {
+                                        Toast.makeText(getBaseContext(), "Account Created", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(getBaseContext(), "Error creating account", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
                     }
                 }.start();
             }

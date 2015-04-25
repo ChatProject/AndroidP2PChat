@@ -10,12 +10,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -69,18 +73,40 @@ public class ChatActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread() {
+                button.setEnabled(false);
+                Thread t = new Thread() {
                     @Override
                     public void run() {
                         try {
-                            ChatActivity.sendMessage(username, inputEditText.getText().toString(), friend);
+                            boolean success = ChatActivity.sendMessage(username, inputEditText.getText().toString(), friend);
+                            if (success) {
+                                ChatActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        chatTextView.append(MY_FORMAT.format(new Date()) + "sent " + inputEditText.getText() + "\n");
+                                        inputEditText.setText("");
+                                    }
+                                });
+                            } else {
+                                ChatActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getBaseContext(), "Error sending Message", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                }.start();
-                chatTextView.append(MY_FORMAT.format(new Date()) + "sent " + inputEditText.getText() + "\n");
-                inputEditText.setText("");
+                };
+                t.start();
+                try {
+                    t.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                button.setEnabled(true);
             }
         });
 
@@ -142,20 +168,20 @@ public class ChatActivity extends ActionBarActivity {
         });
     }
 
-    public static void sendMessage(String username, String message, Friend recipient) throws UnknownHostException, IOException {
+    public static boolean sendMessage(String username, String message, Friend recipient) throws UnknownHostException, IOException {
         try (Socket socket = new Socket(recipient.getIpv4_address(), recipient.getListeningPort())) {
             try (ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream())) {
                 final Data d = new Data(message, username);
 
                 toServer.writeObject(d);
 
-						/*try (ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream())) {
+                try (InputStreamReader fromServer = new InputStreamReader(socket.getInputStream())) {
+                    if (fromServer.read() == 200) {
+                        Log.d("", "Message sent successfully");
+                        return true;
+                    }
+                }
 
-							Data reply = (Data)fromServer.readObject();
-							textArea.append(reply.getMessage() + "\n");
-						} catch (ClassNotFoundException e1) {
-							e1.printStackTrace();
-						}*/
             } catch (IOException e2) {
                 e2.printStackTrace();
                 Log.d("", "", e2);
@@ -166,6 +192,7 @@ public class ChatActivity extends ActionBarActivity {
         } catch (IOException e3) {
             Log.d("", "", e3);
         }
+        return false;
     }
 
     public File getStorageDir() {
