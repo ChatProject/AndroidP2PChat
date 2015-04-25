@@ -8,8 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
 
 public class Server {
 
@@ -87,6 +89,20 @@ class ServerThread extends Thread {
                     writer.write(ChatActivity.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+                int count = FriendsActivity.friendsActivity.getListView().getCount();
+                for (int i = 0; i < count; i++) {
+                    Friend f = (Friend)FriendsActivity.friendsActivity.getListView().getItemAtPosition(i);
+                    if (f.getUsername().equals(d.getSenderUsername())) {
+                        final View view = FriendsActivity.friendsActivity.getListView().getChildAt(i);
+                        FriendsActivity.friendsActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                view.setBackgroundColor(Color.GREEN);
+                            }
+                        });
+
+                    }
                 }
             }
 

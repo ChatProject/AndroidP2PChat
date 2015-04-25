@@ -1,6 +1,9 @@
 package com.jakecrane.p2pchat;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +31,13 @@ import java.util.ArrayList;
 
 public class FriendsActivity extends ActionBarActivity {
 
+    public static FriendsActivity friendsActivity = null;
+
     private ListView listView = null;
+
+    public ListView getListView() {
+        return listView;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +58,7 @@ public class FriendsActivity extends ActionBarActivity {
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                        listView.getChildAt(position).setBackgroundColor(0); //set transparent to remove possible notification
                         Friend friend = (Friend)parent.getItemAtPosition(position);
 
                         Toast.makeText(getBaseContext(), friend.getUsername() + "@"
@@ -59,7 +68,6 @@ public class FriendsActivity extends ActionBarActivity {
                         intent1.putExtra("username", username);
                         intent1.putExtra("friend", friend);
                         startActivity(intent1);
-
                     }
                 });
             }
@@ -77,6 +85,7 @@ public class FriendsActivity extends ActionBarActivity {
                 }.start();
             }
         });
+        friendsActivity = this;
     }
 
     public void updateFriends(String serverAddress, String username, String password) {
