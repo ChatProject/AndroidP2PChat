@@ -45,11 +45,66 @@ public class SignInActivity extends ActionBarActivity {
                 finish();
             }
         });
+        Button createAccountButton = (Button)findViewById(R.id.createAccountButton);
+        createAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String serverAddress = ((EditText)findViewById(R.id.serverEditText)).getText().toString();
+                final String username = ((EditText)findViewById(R.id.usernameEditText)).getText().toString();
+                final String password = ((EditText)findViewById(R.id.passwordEditText)).getText().toString();
+                final int myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
+                new Thread() {
+                    @Override
+                    public void run() {
+                        createAccount(serverAddress, username, password, myOpenPort);
+                    }
+                }.start();
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    public static boolean createAccount(String serverAddress, String username, String password, int myOpenPort) {
+
+        try {
+            URL obj = new URL("http://" + serverAddress + "/P2PChat/CreateAccount");
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            //add reuqest header
+
+            con.setRequestMethod("POST");
+
+            con.setRequestProperty("User-Agent", "AndroidApp");
+            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+            String urlParameters = "username=" + username + "&password=" + password + "&listening_port=" + myOpenPort; //FIXME not secure
+
+            // Send post request
+            con.setDoOutput(true);
+            try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+                wr.writeBytes(urlParameters);
+                wr.flush();
+            }
+
+            final int responseCode = con.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return true;
+            }
+
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public static boolean updateStatus(String serverAddress, String username, String password, int myOpenPort) {
