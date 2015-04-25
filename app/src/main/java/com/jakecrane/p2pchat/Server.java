@@ -1,24 +1,21 @@
 package com.jakecrane.p2pchat;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Date;
 
-import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.widget.TextView;
 
 public class Server {
 
-    public static final ArrayList<ChatActivity> chatActivities = new ArrayList<ChatActivity>();
+    public static ChatActivity currentChatActivity = null;
 
-	public Server(final int myOpenPort, final String serverAddress, final String username, final String password, final ActionBarActivity activity) {
+    public Server(final int myOpenPort, final String serverAddress, final String username, final String password, final ActionBarActivity activity) {
         new Thread() {
             @Override
             public void run() {
@@ -44,57 +41,53 @@ public class Server {
 
 class ServerThread extends Thread {
 
-	private Socket socket;
+    private Socket socket;
     private ActionBarActivity activity;
     private String serverAddress;//TODO remove
     private String username;//TODO remove
     private String password;//TODO remove
-	//private ObjectInputStream inputFromClient;
+    //private ObjectInputStream inputFromClient;
 
-	public ServerThread(Socket socket, ActionBarActivity activity, String serverAddress, String username, String password) {
+    public ServerThread(Socket socket, ActionBarActivity activity, String serverAddress, String username, String password) {
         this.socket = socket;
         this.activity = activity;
         this.serverAddress = serverAddress;
         this.username = username;
         this.password = password;
-	}
+    }
 
-	@Override
-	public void run() {
-		try (ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream())) {
+    @Override
+    public void run() {
+        try (ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream())) {
 
-			final Data d = (Data)inputFromClient.readObject();
-			d.setReceivedTime(System.currentTimeMillis());
+            final Data d = (Data)inputFromClient.readObject();
+            d.setReceivedTime(System.currentTimeMillis());
 
             Log.d("", d.getSenderUsername() + " is sending a message");
-            for (final ChatActivity chatActivity : Server.chatActivities) {
-                Log.d("", "checking to see if " + d.getSenderUsername() + " equals " + chatActivity.getFriend().getUsername());
-                if (d.getSenderUsername().equals(chatActivity.getFriend().getUsername())) {
-                    Log.d("", "got message placing it in textview");
-                    chatActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            chatActivity.getChatTextView().append(ChatActivity.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");
-                        }
-                    });
-                    return;
-                }
-            }
 
-            //open new ChatActivity
-            final Intent intent1 = new Intent(activity, ChatActivity.class);
-            intent1.putExtra("username", username);
-            ArrayList<Friend> friends = FriendsActivity.getFriends(serverAddress, username, password);
-            for (Friend friend : friends) {
-                if (friend.getUsername().equals(d.getSenderUsername())) {
-                    intent1.putExtra("friend", friend);
-                }
-            }
-            if (intent1.getSerializableExtra("friend") != null) {
-                intent1.putExtra("message", ChatActivity.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");
-                activity.startActivity(intent1);
+            if (Server.currentChatActivity != null && d.getSenderUsername().equals(Server.currentChatActivity.getFriend().getUsername())) {
+                Log.d("", "got message placing it in textview");
+                Server.currentChatActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Server.currentChatActivity.getChatTextView().append(ChatActivity.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");
+                    }
+                });
+                return;
             } else {
-                Log.d("", d.getSenderUsername() + " send you a message but is not your friend.");
+                File storageDir = new File("/data/data/com.jakecrane.p2pchat/files/" + username + "/"); //TODO make path dynamic
+                if (!storageDir.exists()) {
+                    if (!storageDir.mkdir()) {
+                        Log.e("", "unable to create storage dir");
+                    }
+                }
+                File outputFile = new File(storageDir, d.getSenderUsername());
+                Log.d("", "server writing files to " + outputFile);
+                try (FileWriter writer = new FileWriter(outputFile, true)) {
+                    writer.write(ChatActivity.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
 			/*try (ObjectOutputStream outputToClient = new ObjectOutputStream(socket.getOutputStream())) {
@@ -103,12 +96,12 @@ class ServerThread extends Thread {
 			}*/
 
         } catch(ClassNotFoundException ex) {
-		    ex.printStackTrace();
+            ex.printStackTrace();
             Log.d("", "", ex);
-		} catch(IOException ex) {
-			ex.printStackTrace();
+        } catch(IOException ex) {
+            ex.printStackTrace();
             Log.d("", "", ex);
-		}
-	}
+        }
+    }
 
 }

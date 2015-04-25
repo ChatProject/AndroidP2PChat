@@ -1,35 +1,26 @@
 package com.jakecrane.p2pchat;
 
 import android.content.Intent;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.Socket;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Logger;
 
 public class ChatActivity extends ActionBarActivity {
 
@@ -93,7 +84,8 @@ public class ChatActivity extends ActionBarActivity {
             }
         });
 
-        File file = new File(getFilesDir(), friend.getUsername());
+        File file = new File(getStorageDir(), friend.getUsername());
+        Log.d("", "reading from " + file);
         if (file.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line = null;
@@ -104,7 +96,7 @@ public class ChatActivity extends ActionBarActivity {
                 e.printStackTrace();
             }
         }
-        Server.chatActivities.add(this);
+        Server.currentChatActivity = this;
     }
 
     @Override
@@ -117,8 +109,8 @@ public class ChatActivity extends ActionBarActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Server.chatActivities.remove(this);
-        File file = new File(getFilesDir(), friend.getUsername());
+        File file = new File(getStorageDir(), friend.getUsername());
+        Log.d("", "writing chat to " + file);
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(chatTextView.getText().toString());
         } catch (IOException e) {
@@ -174,6 +166,17 @@ public class ChatActivity extends ActionBarActivity {
         } catch (IOException e3) {
             Log.d("", "", e3);
         }
+    }
+
+    public File getStorageDir() {
+        File f = new File(getFilesDir().getPath() + "/" + username); //TODO path should be dynamic
+        if (!f.exists()) {
+            if (!f.mkdir()) {
+                Log.e("", "unable to create storage dir");
+                return null;
+            }
+        }
+        return f;
     }
 
 }
