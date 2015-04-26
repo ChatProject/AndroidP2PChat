@@ -3,8 +3,8 @@ package com.jakecrane.p2pchat;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -212,14 +212,14 @@ public class FriendsActivity extends ActionBarActivity {
             URL obj = new URL("http://" + serverAddress + "/P2PChat/AddFriend");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            //add reuqest header
+            //add request header
 
             con.setRequestMethod("POST");
 
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "username=" + username + "&password=" + password + "&friend_username=" + friendUsername; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password + "&friend_username=" + friendUsername;
 
             // Send post request
             con.setDoOutput(true);
@@ -251,14 +251,14 @@ public class FriendsActivity extends ActionBarActivity {
             URL obj = new URL("http://" + serverAddress + "/P2PChat/DeleteFriend");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            //add reuqest header
+            //add request header
 
             con.setRequestMethod("POST");
 
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "username=" + username + "&password=" + password + "&friend_username=" + friendUsername; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password + "&friend_username=" + friendUsername;
 
             // Send post request
             con.setDoOutput(true);
@@ -312,7 +312,7 @@ public class FriendsActivity extends ActionBarActivity {
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "username=" + username + "&password=" + password; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password;
 
             // Send post request
             con.setDoOutput(true);

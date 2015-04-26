@@ -1,15 +1,15 @@
 package com.jakecrane.p2pchat;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -17,9 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -60,8 +58,6 @@ public class ChatActivity extends ActionBarActivity {
         usernameTextView.setText("Chatting with " + friend.getUsername() + "@"
                 + friend.getIpv4_address() + ":"
                 + friend.getListeningPort());
-
-        final Intent intent = new Intent(this, FriendsActivity.class);
 
         chatTextView = (TextView)findViewById(R.id.chatTextView);
         if (message != null) {
@@ -176,7 +172,8 @@ public class ChatActivity extends ActionBarActivity {
                 toServer.writeObject(d);
 
                 try (InputStreamReader fromServer = new InputStreamReader(socket.getInputStream())) {
-                    if (fromServer.read() == 200) {
+                    int response = fromServer.read();
+                    if (response == 200) {
                         Log.d("", "Message sent successfully");
                         return true;
                     }
@@ -184,19 +181,19 @@ public class ChatActivity extends ActionBarActivity {
 
             } catch (IOException e2) {
                 e2.printStackTrace();
-                Log.d("", "", e2);
+                Log.e("", "", e2);
             }
         } catch (UnknownHostException e3) {
             e3.printStackTrace();
-            Log.d("", "", e3);
+            Log.e("", "", e3);
         } catch (IOException e3) {
-            Log.d("", "", e3);
+            Log.e("", "", e3);
         }
         return false;
     }
 
     public File getStorageDir() {
-        File f = new File(getFilesDir().getPath() + "/" + username); //TODO path should be dynamic
+        File f = new File(getFilesDir().getPath() + "/" + username);
         if (!f.exists()) {
             if (!f.mkdir()) {
                 Log.e("", "unable to create storage dir");

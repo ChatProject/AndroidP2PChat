@@ -1,8 +1,8 @@
 package com.jakecrane.p2pchat;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -85,14 +85,14 @@ public class SignInActivity extends ActionBarActivity {
             URL obj = new URL("http://" + serverAddress + "/P2PChat/CreateAccount");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            //add reuqest header
+            //add request header
 
             con.setRequestMethod("POST");
 
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "username=" + username + "&password=" + password + "&listening_port=" + myOpenPort; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password + "&listening_port=" + myOpenPort;
 
             // Send post request
             con.setDoOutput(true);
@@ -124,14 +124,14 @@ public class SignInActivity extends ActionBarActivity {
             URL obj = new URL("http://" + serverAddress + "/P2PChat/UpdateUser");
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            //add reuqest header
+            //add request header
 
             con.setRequestMethod("POST");
 
             con.setRequestProperty("User-Agent", "AndroidApp");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
-            String urlParameters = "username=" + username + "&password=" + password + "&listening_port=" + myOpenPort; //FIXME not secure
+            String urlParameters = "username=" + username + "&password=" + password + "&listening_port=" + myOpenPort;
 
             // Send post request
             con.setDoOutput(true);

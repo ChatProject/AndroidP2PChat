@@ -1,20 +1,18 @@
 package com.jakecrane.p2pchat;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Date;
-
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Date;
 
 public class Server {
 
@@ -26,7 +24,7 @@ public class Server {
             public void run() {
                 try (ServerSocket serverSocket = new ServerSocket(myOpenPort)) {
                     Log.d("Server started on " + myOpenPort, "");
-                    while (true) {
+                    while (true) { //TODO Probably should not use an infinite loop
                         try {
                             Socket socket = serverSocket.accept();
                             new ServerThread(socket, activity, serverAddress, username, password).start();
@@ -82,7 +80,6 @@ class ServerThread extends Thread {
                         Server.currentChatActivity.getChatTextView().append(ChatActivity.MY_FORMAT.format(new Date(d.getReceivedTime())) + "received " + d.getMessage() + "\n");
                     }
                 });
-                return;
             } else {
                 File storageDir = new File("/data/data/com.jakecrane.p2pchat/files/" + username + "/"); //TODO make path dynamic
                 if (!storageDir.exists()) {
