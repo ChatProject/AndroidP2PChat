@@ -1,9 +1,8 @@
 package com.jakecrane.p2pchat;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,8 +12,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,6 +77,55 @@ public class FriendsActivity extends ActionBarActivity {
                         startActivity(intent1);
                     }
                 });
+                listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        final Friend friend = (Friend)parent.getItemAtPosition(position);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
+                        builder.setTitle("Delete Confirmation");
+                        builder.setMessage("Are you sure you want to delete " + friend.getUsername() + "?");
+
+                        builder.setPositiveButton("Confirm Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                new Thread() {
+                                    @Override
+                                    public void run() {
+                                        FriendsActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Log.d("", "Attempting to delete " + friend.getUsername());
+                                                Toast.makeText(getBaseContext(), "Attempting to delete " + friend.getUsername(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        final boolean success = deleteFriend(serverAddress, username, password, friend.getUsername());
+                                        FriendsActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (success) {
+                                                    Toast.makeText(getBaseContext(), friend.getUsername() + " Deleted", Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    Toast.makeText(getBaseContext(), "Unable to Delete " + friend.getUsername(), Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                        });
+                                        if (success) {
+                                            updateFriends(serverAddress, username, password);
+                                        }
+                                    }
+                                }.start();
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
+                        return true;
+                    }
+                });
             }
         }.start();
 
@@ -103,7 +151,137 @@ public class FriendsActivity extends ActionBarActivity {
                 }.start();
             }
         });
+        Button addFriendButton = (Button)findViewById(R.id.addFriendButton);
+        addFriendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
+                builder.setTitle("Add Friend");
+                builder.setMessage("Enter the Username of the friend you would like to add.");
+
+                final EditText input = new EditText(FriendsActivity.this);
+                builder.setView(input);
+
+                builder.setPositiveButton("Add Friend", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                FriendsActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.d("", "Attempting to add " + input.getText().toString());
+                                        Toast.makeText(getBaseContext(), "Attempting to add " + input.getText().toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                final boolean success = addFriend(serverAddress, username, password, input.getText().toString());
+                                FriendsActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (success) {
+                                            Toast.makeText(getBaseContext(), input.getText().toString() + " Added", Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(getBaseContext(), "Unable to Add Friend", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                                if (success) {
+                                    updateFriends(serverAddress, username, password);
+                                }
+                            }
+                        }.start();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
         friendsActivity = this;
+    }
+
+    public static boolean addFriend(String serverAddress, String username, String password, String friendUsername) {
+
+        try {
+            URL obj = new URL("http://" + serverAddress + "/P2PChat/AddFriend");
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            //add reuqest header
+
+            con.setRequestMethod("POST");
+
+            con.setRequestProperty("User-Agent", "AndroidApp");
+            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+            String urlParameters = "username=" + username + "&password=" + password + "&friend_username=" + friendUsername; //FIXME not secure
+
+            // Send post request
+            con.setDoOutput(true);
+            try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+                wr.writeBytes(urlParameters);
+                wr.flush();
+            }
+
+            final int responseCode = con.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return true;
+            }
+
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static boolean deleteFriend(String serverAddress, String username, String password, String friendUsername) {
+
+        try {
+            URL obj = new URL("http://" + serverAddress + "/P2PChat/DeleteFriend");
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            //add reuqest header
+
+            con.setRequestMethod("POST");
+
+            con.setRequestProperty("User-Agent", "AndroidApp");
+            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+            String urlParameters = "username=" + username + "&password=" + password + "&friend_username=" + friendUsername; //FIXME not secure
+
+            // Send post request
+            con.setDoOutput(true);
+            try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+                wr.writeBytes(urlParameters);
+                wr.flush();
+            }
+
+            final int responseCode = con.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return true;
+            }
+
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public boolean updateFriends(String serverAddress, String username, String password) {
