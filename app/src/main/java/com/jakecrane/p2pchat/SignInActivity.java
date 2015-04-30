@@ -30,7 +30,7 @@ public class SignInActivity extends ActionBarActivity {
                 final String username = ((EditText)findViewById(R.id.usernameEditText)).getText().toString();
                 final String password = ((EditText)findViewById(R.id.passwordEditText)).getText().toString();
                 final int myOpenPort = Integer.parseInt(((EditText)findViewById(R.id.myOpenPortEditText)).getText().toString());
-                new Server(myOpenPort, serverAddress, username, password, SignInActivity.this);
+
                 new Thread() {
                     @Override
                     public void run() {
@@ -39,9 +39,10 @@ public class SignInActivity extends ActionBarActivity {
                 }.start();
 
                 final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
-                intent1.putExtra("serverAddress", serverAddress );
-                intent1.putExtra("username", username );
-                intent1.putExtra("password", password );
+                intent1.putExtra("serverAddress", serverAddress);
+                intent1.putExtra("username", username);
+                intent1.putExtra("password", password);
+                intent1.putExtra("myOpenPort", myOpenPort);
                 startActivity(intent1);
                 finish();
             }
@@ -72,11 +73,6 @@ public class SignInActivity extends ActionBarActivity {
                 }.start();
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     public static boolean createAccount(String serverAddress, String username, String password, int myOpenPort) {

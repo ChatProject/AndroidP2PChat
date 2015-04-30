@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -130,7 +131,7 @@ public class ChatActivity extends ActionBarActivity {
 
     @Override
     protected void onStop() {
-        super.onStop();
+        Server.currentChatActivity = null;
         File file = new File(getStorageDir(), friend.getUsername());
         Log.d("", "writing chat to " + file);
         try (FileWriter writer = new FileWriter(file)) {
@@ -138,6 +139,7 @@ public class ChatActivity extends ActionBarActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        super.onStop();
     }
 
     @Override
@@ -166,28 +168,23 @@ public class ChatActivity extends ActionBarActivity {
 
     public static boolean sendMessage(String username, String message, Friend recipient) throws UnknownHostException, IOException {
         try (Socket socket = new Socket(recipient.getIpv4_address(), recipient.getListeningPort())) {
-            try (ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream())) {
-                final Data d = new Data(message, username);
+            ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
+            final Data d = new Data(message, username);
+            toServer.writeObject(d);
+            toServer.flush();
 
-                toServer.writeObject(d);
-
-                try (InputStreamReader fromServer = new InputStreamReader(socket.getInputStream())) {
-                    int response = fromServer.read();
-                    if (response == 200) {
-                        Log.d("", "Message sent successfully");
-                        return true;
-                    }
-                }
-
-            } catch (IOException e2) {
-                e2.printStackTrace();
-                Log.e("", "", e2);
+            //FIXME response should not be necessary since this is a tcp connection.
+            InputStreamReader fromServer = new InputStreamReader(socket.getInputStream());
+            int response = fromServer.read();
+            if (response == 200) {
+                Log.d("", "Message sent successfully");
+                return true;
             }
-        } catch (UnknownHostException e3) {
-            e3.printStackTrace();
-            Log.e("", "", e3);
-        } catch (IOException e3) {
-            Log.e("", "", e3);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("", "", e);
+            return false;
         }
         return false;
     }

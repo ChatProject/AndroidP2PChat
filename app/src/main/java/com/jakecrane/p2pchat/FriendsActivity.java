@@ -32,6 +32,8 @@ public class FriendsActivity extends ActionBarActivity {
 
     public static FriendsActivity friendsActivity = null;
 
+    private Server server;
+
     private ListView listView = null;
 
     public ListView getListView() {
@@ -46,6 +48,15 @@ public class FriendsActivity extends ActionBarActivity {
         final String serverAddress = getIntent().getStringExtra("serverAddress");
         final String username = getIntent().getStringExtra("username");
         final String password = getIntent().getStringExtra("password");
+        final int myOpenPort = getIntent().getIntExtra("myOpenPort", -1);
+
+        server = new Server();
+        new Thread() {
+            @Override
+            public void run() {
+                server.start(myOpenPort, serverAddress, username, password, FriendsActivity.this);
+            }
+        }.start();
 
         Toast.makeText(getBaseContext(), "Updating Friends", Toast.LENGTH_SHORT).show();
         new Thread() {
@@ -204,6 +215,17 @@ public class FriendsActivity extends ActionBarActivity {
             }
         });
         friendsActivity = this;
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d("", "Destroying FriendsActivity and hopefully closing server");
+        try {
+            if (server != null) server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
     }
 
     public static boolean addFriend(String serverAddress, String username, String password, String friendUsername) {

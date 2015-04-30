@@ -10,36 +10,45 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Date;
 
-public class Server {
+public class Server implements Serializable {
+
+    private static final long serialVersionUID = -3452720341792293374L;
 
     public static ChatActivity currentChatActivity = null;
 
-    public Server(final int myOpenPort, final String serverAddress, final String username, final String password, final ActionBarActivity activity) {
-        new Thread() {
-            @Override
-            public void run() {
-                try (ServerSocket serverSocket = new ServerSocket(myOpenPort)) {
-                    Log.d("Server started on " + myOpenPort, "");
-                    while (true) { //TODO Probably should not use an infinite loop
-                        try {
-                            Socket socket = serverSocket.accept();
-                            new ServerThread(socket, activity, serverAddress, username, password).start();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Log.e("", "", e);
-                        }
-                    }
-                } catch (IOException i) {
-                    System.err.println("Unable to start. Another instance may already be running.");
-                    Log.e("", "Unable to start. Another instance may already be running.");
+    private ServerSocket serverSocket;
+
+    public void start(final int myOpenPort, final String serverAddress, final String username, final String password, final ActionBarActivity activity) {
+        try {
+            try {
+                serverSocket = new ServerSocket(myOpenPort);
+                Log.d("Server started on " + myOpenPort, "");
+                while (!serverSocket.isClosed()) { //TODO Probably should not use an infinite loop
+                    Socket socket = serverSocket.accept();
+                    new ServerThread(socket, activity, serverAddress, username, password).start();
                 }
+            } finally {
+                if (serverSocket != null) serverSocket.close();
             }
-        }.start();
+        } catch (SocketException se) {
+            Log.d("", "Server Threw SocketException");
+        } catch (IOException i) {
+            Log.e("", "Unable to start. Another instance may already be running.");
+            i.printStackTrace();
+        }
     }
+
+    public void close() throws IOException {
+        Log.d("", "Server is Closing serverSocket");
+        if (serverSocket != null) serverSocket.close();
+    }
+
 }
 
 class ServerThread extends Thread {
@@ -64,6 +73,8 @@ class ServerThread extends Thread {
         try (ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream())) {
 
             final Data d = (Data)inputFromClient.readObject();
+
+            //FIXME should not be necessary since this is a tcp connection.
             try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream())) {
                 writer.write(200);
             }
