@@ -34,17 +34,31 @@ public class SignInActivity extends ActionBarActivity {
                 new Thread() {
                     @Override
                     public void run() {
-                        updateStatus(serverAddress, username, password, myOpenPort);
+                        final boolean success = updateStatus(serverAddress, username, password, myOpenPort);
+                        if (success) {
+                            SignInActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
+                                    intent1.putExtra("serverAddress", serverAddress);
+                                    intent1.putExtra("username", username);
+                                    intent1.putExtra("password", password);
+                                    intent1.putExtra("myOpenPort", myOpenPort);
+                                    startActivity(intent1);
+                                    finish();
+                                }
+                            });
+                        } else {
+                            SignInActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getBaseContext(), "Invalid username password combination", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
                     }
                 }.start();
 
-                final Intent intent1 = new Intent(SignInActivity.this, FriendsActivity.class);
-                intent1.putExtra("serverAddress", serverAddress);
-                intent1.putExtra("username", username);
-                intent1.putExtra("password", password);
-                intent1.putExtra("myOpenPort", myOpenPort);
-                startActivity(intent1);
-                finish();
             }
         });
         Button createAccountButton = (Button)findViewById(R.id.createAccountButton);
@@ -59,16 +73,16 @@ public class SignInActivity extends ActionBarActivity {
                     @Override
                     public void run() {
                         final boolean success = createAccount(serverAddress, username, password, myOpenPort);
-                            SignInActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (success) {
-                                        Toast.makeText(getBaseContext(), "Account Created", Toast.LENGTH_LONG).show();
-                                    } else {
-                                        Toast.makeText(getBaseContext(), "Error creating account", Toast.LENGTH_LONG).show();
-                                    }
+                        SignInActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (success) {
+                                    Toast.makeText(getBaseContext(), "Account Created", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getBaseContext(), "Error creating account", Toast.LENGTH_LONG).show();
                                 }
-                            });
+                            }
+                        });
                     }
                 }.start();
             }

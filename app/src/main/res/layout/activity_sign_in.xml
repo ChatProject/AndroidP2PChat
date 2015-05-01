@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/usernameEditText"
         android:inputType="text"
-        android:text="jake"
         android:layout_below="@+id/serverEditText"
         android:layout_toEndOf="@+id/textView2"
         android:layout_marginStart="16dp" />
@@ -21,7 +20,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/serverEditText"
         android:inputType="text"
-        android:text="192.168.0.100"
+        android:text="184.7.35.111"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/textView"
         android:layout_marginStart="19dp" />
@@ -58,8 +57,7 @@
         android:ems="10"
         android:id="@+id/passwordEditText"
         android:layout_below="@+id/textView2"
-        android:layout_toEndOf="@+id/textView2"
-        android:text="password" />
+        android:layout_toEndOf="@+id/textView2" />
 
     <EditText
         android:layout_width="wrap_content"
